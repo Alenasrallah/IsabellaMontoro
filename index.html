@@ -84,6 +84,14 @@
   0%   { transform: scale(1); opacity: 0.6; }
   100% { transform: scale(1.5); opacity: 0; }
 }
+@keyframes dep-left {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes dep-right {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
+}
 
 /* ── Base reset ── */
 *, *::before, *::after { box-sizing: border-box; }
@@ -644,31 +652,73 @@ img { max-width: 100%; display: block; }
 }
 
 /* ============================================================
-   GALERIA — antes e depois (card gradient do DS)
+   GALERIA BENTO — antes e depois
    ============================================================ */
-.gallery__grid {
+.gallery-header {
   max-width: var(--container-max); margin: 0 auto 40px;
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 48px;
+}
+.gallery-header__left { display: flex; flex-direction: column; gap: 16px; }
+.gallery-header__right {
+  display: flex; flex-direction: column; gap: 16px;
+  max-width: 340px; text-align: right; align-items: flex-end; flex-shrink: 0;
+}
+.gallery-stat { display: flex; align-items: center; gap: 14px; }
+.gallery-stat__n {
+  font-family: var(--font-display); font-size: 72px; font-weight: 600;
+  color: var(--color-overline); line-height: 1; opacity: 0.28;
+}
+.gallery-stat__l {
+  font-family: var(--font-body); font-size: 11px; font-weight: 400;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: rgba(245,239,229,0.35); line-height: 1.6;
 }
 
-/* Card de foto — galeria antes/depois */
-.gcard {
-  border-radius: var(--card-radius); overflow: hidden;
-  border: 1px solid rgba(196,168,112,0.12);
-  background: var(--color-card-grad-b);
-  transition: border-color 0.3s, transform 0.3s;
+.photo-grid {
+  max-width: var(--container-max); margin: 0 auto 40px;
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 10px;
+}
+/* Row 1: 4 itens — cada um ocupa 3 de 12 colunas */
+.photo-item:nth-child(-n+4) { grid-column: span 3; }
+/* Row 2: 3 itens — cada um ocupa 4 de 12 colunas */
+.photo-item:nth-child(n+5)  { grid-column: span 4; }
+
+.photo-item {
+  position: relative; border-radius: var(--card-radius); overflow: hidden;
+  border: 1px solid rgba(196,168,112,0.10); cursor: pointer;
   aspect-ratio: 3/4;
 }
-.gcard:hover { border-color: rgba(196,168,112,0.35); transform: translateY(-4px); }
-.gcard__img {
+.photo-img {
   width: 100%; height: 100%;
-  object-fit: cover;
-  object-position: center top;
-  display: block;
+  object-fit: cover; object-position: center top; display: block;
+  transition: transform 0.65s cubic-bezier(0.25,0.46,0.45,0.94), filter 0.4s ease;
 }
+.photo-item:hover .photo-img { transform: scale(1.04); filter: brightness(1.06); }
+
+.photo-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, transparent 50%, rgba(10,3,3,0.82) 100%);
+  display: flex; align-items: flex-end; padding: 14px;
+  opacity: 0; transition: opacity 0.4s ease;
+}
+.photo-item:hover .photo-overlay { opacity: 1; }
+
+.photo-tag {
+  font-family: var(--font-nav); font-size: 10px; font-weight: 600;
+  letter-spacing: 3px; text-transform: uppercase; color: var(--color-overline);
+  border: 1px solid rgba(196,168,112,0.40); padding: 5px 12px; border-radius: 100px;
+  background: rgba(10,3,3,0.55); backdrop-filter: blur(8px);
+}
+.photo-item::after {
+  content: ''; position: absolute; inset: 0; border-radius: var(--card-radius);
+  border: 1px solid rgba(196,168,112,0); transition: border-color 0.4s ease;
+  pointer-events: none;
+}
+.photo-item:hover::after { border-color: rgba(196,168,112,0.32); }
 
 .gallery__cta { display: flex; justify-content: center; margin-top: 0; }
-.gcard__img { cursor: pointer; }
 
 /* ============================================================
    LIGHTBOX
@@ -746,6 +796,38 @@ img { max-width: 100%; display: block; }
   margin-left: auto; font-family: var(--font-nav); font-size: 10px;
   color: rgba(196,168,112,0.40); letter-spacing: 1px;
 }
+
+/* ============================================================
+   GALERIA DE DEPOIMENTOS — marquee duplo
+   ============================================================ */
+.dep-marquee {
+  margin-top: 60px;
+  display: flex; flex-direction: column; gap: 12px;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
+  mask-image:         linear-gradient(90deg, transparent 0%, #000 6%, #000 94%, transparent 100%);
+}
+.dep-row { display: flex; width: 100%; }
+.dep-track {
+  display: flex; gap: 12px; flex-shrink: 0;
+  animation: dep-left 40s linear infinite;
+  will-change: transform;
+}
+.dep-track--reverse { animation: dep-right 40s linear infinite; }
+.dep-row:hover .dep-track { animation-play-state: paused; }
+
+.dep-item {
+  flex-shrink: 0; height: 300px;
+  border-radius: 12px; overflow: hidden;
+  border: 1px solid rgba(196,168,112,0.12);
+  cursor: pointer; transition: border-color 0.3s;
+}
+.dep-item:hover { border-color: rgba(196,168,112,0.35); }
+.dep-img {
+  height: 100%; width: auto; display: block;
+  transition: filter 0.35s ease;
+}
+.dep-item:hover .dep-img { filter: brightness(1.06); }
 
 /* ============================================================
    VISÃO DE FUTURO
@@ -862,7 +944,8 @@ img { max-width: 100%; display: block; }
   .belief__img-col   { max-width: 480px; margin: 0 auto; width: 100%; }
   .method__grid      { grid-template-columns: 1fr; gap: 40px; }
   .benefits__grid    { grid-template-columns: repeat(2,1fr); }
-  .gallery__grid     { grid-template-columns: repeat(2,1fr); }
+  .gallery-header    { flex-direction: column; align-items: flex-start; }
+  .gallery-header__right { text-align: left; align-items: flex-start; max-width: none; }
   .testi__grid       { grid-template-columns: repeat(2,1fr); }
   .testi__grid .tcard:last-child { display: none; }
   .vision__cards     { grid-template-columns: 1fr; gap: 12px; }
@@ -896,9 +979,19 @@ img { max-width: 100%; display: block; }
   .sec-header { margin-bottom: 40px; }
 
   .benefits__grid { grid-template-columns: 1fr; }
-  .gallery__grid  { grid-template-columns: 1fr; }
-  .testi__grid    { grid-template-columns: 1fr; }
-  .testi__grid .tcard:last-child { display: flex; }
+
+  /* Galeria antes/depois: 2 colunas no mobile */
+  .photo-grid { grid-template-columns: repeat(2, 1fr); }
+  .photo-item:nth-child(-n+4) { grid-column: span 1; }
+  .photo-item:nth-child(n+5)  { grid-column: span 1; }
+
+  /* Header da galeria: stack vertical */
+  .gallery-header    { flex-direction: column; align-items: flex-start; gap: 20px; }
+  .gallery-header__right { text-align: left; align-items: flex-start; max-width: none; }
+  .gallery-stat__n   { font-size: 48px; }
+
+  /* Depoimentos marquee: altura menor */
+  .dep-item { height: 210px; }
 
   .sched__box     { padding: 40px 24px; }
 
@@ -1144,24 +1237,63 @@ img { max-width: 100%; display: block; }
 <div class="ds-divider"></div>
 
 <!-- ============================================================
-     GALERIA — antes e depois (.card do DS)
+     GALERIA BENTO — antes e depois
      ============================================================ -->
 <section class="section section--dark fi" id="resultados" aria-labelledby="gallery-title">
-  <div class="sec-header fi">
-    <span class="overline">Transformações reais</span>
-    <h2 class="h2" id="gallery-title">Antes e Depois</h2>
-    <p class="body-text" style="max-width:520px;">Resultados construídos com técnica, equilíbrio e profundo respeito à individualidade de cada paciente.</p>
+
+  <!-- Header editorial split -->
+  <div class="gallery-header fi">
+    <div class="gallery-header__left">
+      <span class="overline">Transformações reais</span>
+      <h2 class="h2" id="gallery-title">Antes e Depois</h2>
+    </div>
+    <div class="gallery-header__right">
+      <p class="body-text">Resultados construídos com técnica, equilíbrio e profundo respeito à individualidade de cada paciente.</p>
+      <div class="gallery-stat">
+        <span class="gallery-stat__n">7</span>
+        <span class="gallery-stat__l">transformações<br>documentadas</span>
+      </div>
+    </div>
   </div>
 
-  <div class="gallery__grid fi" style="transition-delay:.1s">
-    <div class="gcard"><img class="gcard__img" src="antesedepois/1.webp" alt="Resultado" loading="lazy"></div>
-    <div class="gcard"><img class="gcard__img" src="antesedepois/2.webp" alt="Resultado" loading="lazy"></div>
-    <div class="gcard"><img class="gcard__img" src="antesedepois/3.webp" alt="Resultado" loading="lazy"></div>
-    <div class="gcard"><img class="gcard__img" src="antesedepois/4.webp" alt="Resultado" loading="lazy"></div>
-    <div class="gcard"><img class="gcard__img" src="antesedepois/5.webp" alt="Resultado" loading="lazy"></div>
-    <div class="gcard"><img class="gcard__img" src="antesedepois/6.webp" alt="Resultado" loading="lazy"></div>
-    <div class="gcard"><img class="gcard__img" src="antesedepois/7.webp" alt="Resultado" loading="lazy"></div>
-    <div class="gcard"><img class="gcard__img" src="antesedepois/8.webp" alt="Resultado" loading="lazy"></div>
+  <!-- Grid 4+3: fileira de 4, fileira de 3 -->
+  <div class="photo-grid fi" style="transition-delay:.1s">
+
+    <div class="photo-item">
+      <img class="photo-img" src="antesedepois/1.webp" alt="Transformação 1" loading="lazy">
+      <div class="photo-overlay"><span class="photo-tag">Antes · Depois</span></div>
+    </div>
+
+    <div class="photo-item">
+      <img class="photo-img" src="antesedepois/2.webp" alt="Transformação 2" loading="lazy">
+      <div class="photo-overlay"><span class="photo-tag">Antes · Depois</span></div>
+    </div>
+
+    <div class="photo-item">
+      <img class="photo-img" src="antesedepois/3.webp" alt="Transformação 3" loading="lazy">
+      <div class="photo-overlay"><span class="photo-tag">Antes · Depois</span></div>
+    </div>
+
+    <div class="photo-item">
+      <img class="photo-img" src="antesedepois/4.webp" alt="Transformação 4" loading="lazy">
+      <div class="photo-overlay"><span class="photo-tag">Antes · Depois</span></div>
+    </div>
+
+    <div class="photo-item">
+      <img class="photo-img" src="antesedepois/5.webp" alt="Transformação 5" loading="lazy">
+      <div class="photo-overlay"><span class="photo-tag">Antes · Depois</span></div>
+    </div>
+
+    <div class="photo-item">
+      <img class="photo-img" src="antesedepois/6.webp" alt="Transformação 6" loading="lazy">
+      <div class="photo-overlay"><span class="photo-tag">Antes · Depois</span></div>
+    </div>
+
+    <div class="photo-item">
+      <img class="photo-img" src="antesedepois/7.webp" alt="Transformação 7" loading="lazy">
+      <div class="photo-overlay"><span class="photo-tag">Antes · Depois</span></div>
+    </div>
+
   </div>
 
   <div class="gallery__cta fi" style="transition-delay:.25s">
@@ -1177,65 +1309,52 @@ img { max-width: 100%; display: block; }
 <div class="ds-divider"></div>
 
 <!-- ============================================================
-     DEPOIMENTOS — .card--light do DS
+     GALERIA DE DEPOIMENTOS — screenshots reais
      ============================================================ -->
-<section class="section section--secondary fi" id="depoimentos" aria-labelledby="testi-title">
+<section class="section section--dark fi" id="galeria-dep" aria-labelledby="dep-title">
   <div class="sec-header fi">
-    <span class="overline">Prova social</span>
-    <h2 class="h2" id="testi-title">O que minhas pacientes dizem</h2>
-    <p class="body-text" style="max-width:500px;">Histórias reais de transformação, confiança e autoestima renovada.</p>
+    <span class="overline">Avaliações reais</span>
+    <h2 class="h2" id="dep-title">Depoimentos das Pacientes</h2>
+    <p class="body-text" style="max-width:500px;">Mensagens reais de quem já viveu a transformação do Método IM®.</p>
   </div>
 
-  <div class="testi__grid fi" style="transition-delay:.1s">
+  <div class="dep-marquee fi" style="transition-delay:.1s">
 
-    <div class="tcard">
-      <div class="tcard__stars">
-        <span class="tcard__star">★</span><span class="tcard__star">★</span>
-        <span class="tcard__star">★</span><span class="tcard__star">★</span>
-        <span class="tcard__star">★</span>
-      </div>
-      <p class="tcard__text">"Tinha muito medo de ficar com cara de artificial, mas o resultado foi exatamente o oposto. Minha pele parece mais descansada e jovem, continuo sendo completamente eu mesma. A Isabella entende cada detalhe do seu rosto."</p>
-      <div class="tcard__author">
-        <div class="tcard__av">M</div>
-        <div>
-          <p class="tcard__name">Mariana S.</p>
-          <p class="tcard__detail">Harmonização completa · São Paulo</p>
-        </div>
-        <span class="tcard__google">Google ★</span>
+    <!-- Fileira 1 — rola para a esquerda (imgs 1–6, duplicadas) -->
+    <div class="dep-row">
+      <div class="dep-track">
+        <div class="dep-item"><img class="dep-img" src="dep/1.jpg"  alt="Depoimento" loading="lazy"></div>
+        <div class="dep-item"><img class="dep-img" src="dep/2.jpg"  alt="Depoimento" loading="lazy"></div>
+        <div class="dep-item"><img class="dep-img" src="dep/3.jpg"  alt="Depoimento" loading="lazy"></div>
+        <div class="dep-item"><img class="dep-img" src="dep/4.jpg"  alt="Depoimento" loading="lazy"></div>
+        <div class="dep-item"><img class="dep-img" src="dep/5.jpg"  alt="Depoimento" loading="lazy"></div>
+        <div class="dep-item"><img class="dep-img" src="dep/6.jpg"  alt="Depoimento" loading="lazy"></div>
+        <!-- duplicata para loop contínuo -->
+        <div class="dep-item"><img class="dep-img" src="dep/1.jpg"  alt="Depoimento" loading="lazy"></div>
+        <div class="dep-item"><img class="dep-img" src="dep/2.jpg"  alt="Depoimento" loading="lazy"></div>
+        <div class="dep-item"><img class="dep-img" src="dep/3.jpg"  alt="Depoimento" loading="lazy"></div>
+        <div class="dep-item"><img class="dep-img" src="dep/4.jpg"  alt="Depoimento" loading="lazy"></div>
+        <div class="dep-item"><img class="dep-img" src="dep/5.jpg"  alt="Depoimento" loading="lazy"></div>
+        <div class="dep-item"><img class="dep-img" src="dep/6.jpg"  alt="Depoimento" loading="lazy"></div>
       </div>
     </div>
 
-    <div class="tcard">
-      <div class="tcard__stars">
-        <span class="tcard__star">★</span><span class="tcard__star">★</span>
-        <span class="tcard__star">★</span><span class="tcard__star">★</span>
-        <span class="tcard__star">★</span>
-      </div>
-      <p class="tcard__text">"A Isabella explica cada etapa com tanta calma e atenção que me senti completamente segura durante todo o processo. O resultado é incrível, natural, e o atendimento é impecável do início ao fim."</p>
-      <div class="tcard__author">
-        <div class="tcard__av">P</div>
-        <div>
-          <p class="tcard__name">Patrícia L.</p>
-          <p class="tcard__detail">Toxina + Preenchimento · São Paulo</p>
-        </div>
-        <span class="tcard__google">Google ★</span>
-      </div>
-    </div>
-
-    <div class="tcard">
-      <div class="tcard__stars">
-        <span class="tcard__star">★</span><span class="tcard__star">★</span>
-        <span class="tcard__star">★</span><span class="tcard__star">★</span>
-        <span class="tcard__star">★</span>
-      </div>
-      <p class="tcard__text">"Após anos evitando procedimentos por medo do resultado artificial, finalmente dei esse passo. O Método IM® é diferente de tudo que já vi. Me olho no espelho e me reconheço bonita, natural, radiante."</p>
-      <div class="tcard__author">
-        <div class="tcard__av">A</div>
-        <div>
-          <p class="tcard__name">Ana C.</p>
-          <p class="tcard__detail">Bioestimulador de colágeno · São Paulo</p>
-        </div>
-        <span class="tcard__google">Google ★</span>
+    <!-- Fileira 2 — rola para a direita (imgs 7–12, duplicadas) -->
+    <div class="dep-row">
+      <div class="dep-track dep-track--reverse">
+        <div class="dep-item"><img class="dep-img" src="dep/7.jpg"  alt="Depoimento" loading="lazy"></div>
+        <div class="dep-item"><img class="dep-img" src="dep/8.jpg"  alt="Depoimento" loading="lazy"></div>
+        <div class="dep-item"><img class="dep-img" src="dep/9.jpg"  alt="Depoimento" loading="lazy"></div>
+        <div class="dep-item"><img class="dep-img" src="dep/10.jpg" alt="Depoimento" loading="lazy"></div>
+        <div class="dep-item"><img class="dep-img" src="dep/11.jpg" alt="Depoimento" loading="lazy"></div>
+        <div class="dep-item"><img class="dep-img" src="dep/12.jpg" alt="Depoimento" loading="lazy"></div>
+        <!-- duplicata para loop contínuo -->
+        <div class="dep-item"><img class="dep-img" src="dep/7.jpg"  alt="Depoimento" loading="lazy"></div>
+        <div class="dep-item"><img class="dep-img" src="dep/8.jpg"  alt="Depoimento" loading="lazy"></div>
+        <div class="dep-item"><img class="dep-img" src="dep/9.jpg"  alt="Depoimento" loading="lazy"></div>
+        <div class="dep-item"><img class="dep-img" src="dep/10.jpg" alt="Depoimento" loading="lazy"></div>
+        <div class="dep-item"><img class="dep-img" src="dep/11.jpg" alt="Depoimento" loading="lazy"></div>
+        <div class="dep-item"><img class="dep-img" src="dep/12.jpg" alt="Depoimento" loading="lazy"></div>
       </div>
     </div>
 
@@ -1330,7 +1449,7 @@ img { max-width: 100%; display: block; }
   var lbImg  = document.getElementById('lbImg');
   var lbClose = document.getElementById('lbClose');
 
-  document.querySelectorAll('.gcard__img').forEach(function (img) {
+  document.querySelectorAll('.photo-img').forEach(function (img) {
     img.addEventListener('click', function () {
       lbImg.src = img.src;
       lbImg.alt = img.alt;
