@@ -817,15 +817,14 @@ img { max-width: 100%; display: block; }
 .dep-row:hover .dep-track { animation-play-state: paused; }
 
 .dep-item {
-  flex-shrink: 0; width: 200px; height: 300px;
+  flex-shrink: 0; width: 220px;
   border-radius: 12px; overflow: hidden;
   border: 1px solid rgba(196,168,112,0.12);
   cursor: pointer; transition: border-color 0.3s;
 }
 .dep-item:hover { border-color: rgba(196,168,112,0.35); }
 .dep-img {
-  width: 100%; height: 100%; display: block;
-  object-fit: cover; object-position: top center;
+  width: 100%; height: auto; display: block;
   transition: filter 0.35s ease;
 }
 .dep-item:hover .dep-img { filter: brightness(1.06); }
@@ -994,7 +993,7 @@ img { max-width: 100%; display: block; }
   .gallery-stat__n   { font-size: 48px; }
 
   /* Depoimentos marquee: dimensões menores mantendo proporção 2:3 */
-  .dep-item { width: 140px; height: 210px; }
+  .dep-item { width: 150px; }
 
   .sched__box     { padding: 40px 24px; }
 
